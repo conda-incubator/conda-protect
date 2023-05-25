@@ -173,7 +173,7 @@ def conda_env_lock(args: list[str]):
     print(f"{args.environment.name} is {'locked 🔒' if locked else 'unlocked 🔓'}")
 
 
-def custom_plugin_pre_commands_action(args):
+def custom_plugin_pre_commands_action(command: str, args):
     """
     Checks to see if the current environment being acted on is locked and if so, raise error to
     exit program early
@@ -199,7 +199,7 @@ def custom_plugin_pre_commands_action(args):
         env = args.prefix
         env_name = args.prefix
 
-    # If neither `--prefix` nor `--name` has been provided, we fall back to the the
+    # If neither `--prefix` or `--name` has been provided, we fall back to the
     # `context.active_prefix` value
     if env is None:
         prefix_to_name = get_prefix_to_name_map(prefixes)
