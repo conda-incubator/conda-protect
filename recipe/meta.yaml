@@ -1,0 +1,42 @@
+{% set name = "conda-envlock" %}
+{% set version = "0.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/travishathaway/{{ name }}/archive/refs/tags/{{ version}}.tar.gz
+  sha256: 59abff207cce005eedb1ea0ed6e092664d120fad5142ec3148d9c5e74b5c7086
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - python >=3.8,<4.0
+    - pip
+  run:
+    - python >=3.8.1,<4.0.0
+    - conda
+    - platformdirs
+
+test:
+  imports:
+    - envlock
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/travishathaway/conda-envlock
+  summary: Lock and unlock conda environments to avoid mistakenly modifying them
+  license: GPL-3.0
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - travishathaway

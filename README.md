@@ -25,13 +25,22 @@ conda install -c thath conda-envlock
 
 To lock an environment, simply run the following command:
 
-```
-conda envlock base
+```commandline
+$ conda envlock base
 base is locked 🔒
 ```
 
 Now, when you try to run a command against this environment, conda will exit early:
 
+```commandline
+$ conda install -n base python
+
+CondaEnvLockError: Environment "base" is currently locked. Run `conda envlock 'base'` to unlock it
 ```
-conda install -n base python
+
+If you want to unlock it to add/modify anything, just run the `envlock` command again:
+
+```commandline
+$ conda envlock base
+base is unlocked 🔓
 ```
