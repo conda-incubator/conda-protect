@@ -31,4 +31,4 @@ dependencies = [
 conda-envlock = "envlock.main"
 
 [tool.setuptools]
-py-modules = ["envlock"]
+packages = ["envlock"]
