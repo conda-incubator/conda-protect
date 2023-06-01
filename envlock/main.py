@@ -1,25 +1,37 @@
 from __future__ import annotations
 
-import argparse
 import os
+import logging
 from pathlib import Path
 from typing import NamedTuple
+from collections.abc import Sequence
 
-from platformdirs import user_data_dir
+import click
 from conda.base.context import context
 from conda.base.constants import ROOT_ENV_NAME
 from conda.core.envs_manager import list_all_known_prefixes
-from conda.exceptions import CondaIOError, CondaError
+from conda.exceptions import CondaError
 from conda.plugins import hookimpl, CondaPreCommand, CondaSubcommand
+from rich import print as r_print
+from rich.console import Console
+from rich.table import Table
 
 #: Name of the plugin; this will appear in certain outputs
 PLUGIN_NAME = "conda_envlock"
 
-#: Name of the file where environment locks are kept track of
-LOCKED_ENVS_FILE_NAME = "locked_envs.txt"
+#: Name of the lockfile that we create in environments themselves to signal they are locked.
+LOCKFILE_NAME = ".locked"
 
 #: Name of the command used when locking/unlocking environments
-COMMAND_NAME = "envlock"
+COMMAND_NAME = "el"
+
+#: Symbol we show for locked environments
+LOCKED_SYMBOL = "🔐"
+
+#: Symbol we show for unlocked environments
+UNLOCKED_SYMBOL = "🔓"
+
+logger = logging.getLogger("conda_envlock")
 
 
 class CondaEnvLockError(CondaError):
@@ -28,79 +40,63 @@ class CondaEnvLockError(CondaError):
     """
 
 
-def get_locked_envs_file() -> Path:
-    """
-    Returns a file that it used to read and write to for locking conda environments.
-
-    We first make sure that the app folder and file exist before returning. If we can't
-    write to this file or create the directory, we raise a `CondaIOError`.
-    """
-    app_dir = Path(user_data_dir(PLUGIN_NAME))
-
-    if not app_dir.exists():
-        try:
-            app_dir.mkdir(parents=True)
-        except OSError as exc:
-            raise CondaIOError(f"Unable to create {PLUGIN_NAME} app data directory: {exc}")
-
-    locked_envs_file = app_dir.joinpath(LOCKED_ENVS_FILE_NAME)
-
-    if not locked_envs_file.exists():
-        try:
-            locked_envs_file.touch()
-        except OSError as exc:
-            raise CondaIOError(f"Unable to create {PLUGIN_NAME} database: {exc}")
-
-    return locked_envs_file
-
-
-def lock_environment(env: str) -> bool:
-    """
-    Toggles an environment to either a locked or unlocked state. This function will
-    return `True` when the environment has been locked and `False when the environment
-    has been unlocked.
-    """
-    lockfile = get_locked_envs_file()
-    unlocked = False
-
-    try:
-        with lockfile.open("r") as fp:
-            contents = fp.read().split("\n")
-            if env in contents:
-                contents.remove(env)
-                unlocked = True
-    except OSError as exc:
-        raise CondaIOError(f"Unable to read the {PLUGIN_NAME} database: {exc}")
-
-    if not unlocked:
-        contents.append(env)
-
-    try:
-        with lockfile.open("w") as fp:
-            fp.write("\n".join(contents))
-    except OSError as exc:
-        raise CondaIOError(f"Unable to write to the {PLUGIN_NAME} database: {exc}")
-
-    return not unlocked
-
-
-def is_environment_locked(env: str) -> bool:
-    """
-    Check to see if the environment has a lock on it
-    """
-    lockfile = get_locked_envs_file()
-
-    try:
-        with lockfile.open("r") as fp:
-            contents = fp.read().split("\n")
-            return env in contents
-    except OSError as exc:
-        raise CondaIOError(f"Unable to read the {PLUGIN_NAME} database: {exc}")
-
-
 class EnvironmentInfo(NamedTuple):
     name: str
-    path: str
+    path: Path
+    locked: bool
+
+
+def get_environment_info() -> list[EnvironmentInfo]:
+    """
+    Returns all environments currently known to conda.
+    """
+    prefixes = list_all_known_prefixes()
+    name_to_prefix = get_name_to_prefix_map(prefixes)
+
+    env_info = []
+
+    for prefix in prefixes:
+        if prefix not in name_to_prefix.values():
+            path = Path(prefix)
+            lockfile = path.joinpath(LOCKFILE_NAME)
+            try:
+                env_info.append(
+                    EnvironmentInfo(name="", path=path, locked=lockfile.exists())
+                )
+            except OSError as exc:
+                logger.warning(
+                    f"Could not determine if lockfile '{lockfile}' exists: {exc}"
+                )
+
+    for name, prefix in name_to_prefix.items():
+        path = Path(prefix)
+        lockfile = path.joinpath(LOCKFILE_NAME)
+        env_info.append(EnvironmentInfo(name=name, path=path, locked=lockfile.exists()))
+
+    return sorted(env_info, key=lambda env: env.name)
+
+
+def toggle_environment_lock(env: EnvironmentInfo) -> EnvironmentInfo:
+    """
+    Toggles an environment to either a locked or unlocked state. This function
+    returns an updated `EnvironmentInfo` object.
+    """
+    if env.locked:
+        try:
+            env.path.joinpath(LOCKFILE_NAME).unlink()
+        except OSError as exc:
+            raise CondaEnvLockError(
+                f"Unable to remove a lock for the following reason: {exc}"
+            )
+    else:
+        try:
+            env.path.joinpath(LOCKFILE_NAME).touch()
+        except OSError as exc:
+            raise CondaEnvLockError(
+                f"Unable to create a lock for the following reason: {exc}"
+            )
+
+    return EnvironmentInfo(name=env.name, path=env.path, locked=not env.locked)
 
 
 def get_name_to_prefix_map(prefixes: list[str]) -> dict[str, str]:
@@ -136,7 +132,28 @@ def get_prefix_to_name_map(prefixes: list[str]) -> dict[str, str]:
     return mapping
 
 
-def environment(env: str) -> EnvironmentInfo:
+def display_environment_info_table(environments: Sequence[EnvironmentInfo]) -> None:
+    """
+    Displays a rich table
+    """
+    table = Table(title="Conda Environments")
+
+    table.add_column("Name", style="cyan")
+    table.add_column("Prefix")
+    table.add_column("Status")
+
+    for row in environments:
+        table.add_row(
+            row.name or "-",
+            str(row.path),
+            f"{LOCKED_SYMBOL} [green]locked" if row.locked else "",
+        )
+
+    console = Console()
+    console.print(table)
+
+
+def validate_environment(ctx, param, value) -> EnvironmentInfo | None:
     """
     Makes sure that the environment passed in actually exists
     """
@@ -144,33 +161,59 @@ def environment(env: str) -> EnvironmentInfo:
     prefixes = list_all_known_prefixes()
     name_to_prefix = get_name_to_prefix_map(prefixes)
 
-    if env not in prefixes:
-        if env not in name_to_prefix.keys():
-            raise ValueError()
-        return EnvironmentInfo(name=env, path=name_to_prefix[env])
+    if value not in prefixes:
+        if value is not None:
+            if value not in name_to_prefix.keys():
+                raise click.ClickException("Environment not found")
+            path = Path(name_to_prefix[value])
+            return EnvironmentInfo(
+                name=value, path=path, locked=path.joinpath(LOCKFILE_NAME).exists()
+            )
+        else:
+            return None
 
-    return EnvironmentInfo(name=env, path=env)
+    path = Path(value)
+    return EnvironmentInfo(
+        name=value, path=path, locked=path.joinpath(LOCKFILE_NAME).exists()
+    )
 
 
-def create_parser() -> argparse.ArgumentParser:
+@click.group()
+def cli():
+    pass
+
+
+@cli.command("lock")
+@click.argument("environment", callback=validate_environment, required=False)
+def envlock_lock(environment):
     """
-    Creates a very simple argument parser for our subcommand which only accepts a single argument.
+    Locks environments
     """
-    parser = argparse.ArgumentParser(f"conda {COMMAND_NAME}")
-
-    parser.add_argument("environment", type=environment, help="Environment name")
-
-    return parser
+    env = toggle_environment_lock(environment)
+    r_print(f"{env.name} is {LOCKED_SYMBOL if env.locked else UNLOCKED_SYMBOL}")
 
 
-def conda_env_lock(args: list[str]):
+@cli.command("list")
+@click.option("--locked", "-l", help="Only show locked environments", is_flag=True)
+@click.option("--named", "-n", help="Only show named environments", is_flag=True)
+def envlock_list(locked, named):
+    """
+    List environments in conda and show whether they are locked
+    """
+    all_environments = get_environment_info()
+
+    if locked:
+        all_environments = [env for env in all_environments if env.locked]
+
+    if named:
+        all_environments = [env for env in all_environments if env.name]
+
+    display_environment_info_table(all_environments)
+
+
+def wrapper(args):
     """Lock and unlock environments so changes are not accidentally made to them"""
-    parser = create_parser()
-    args = parser.parse_args(args)
-
-    locked = lock_environment(args.environment.path)
-
-    print(f"{args.environment.name} is {'locked 🔒' if locked else 'unlocked 🔓'}")
+    cli(args=args, prog_name=f"conda {COMMAND_NAME}")
 
 
 def custom_plugin_pre_commands_action(command: str, args):
@@ -181,36 +224,30 @@ def custom_plugin_pre_commands_action(command: str, args):
     TODO: This still doesn't handle `conda env update -f environment.yml`
           We will have to look inside the file and pluck out the environment name
     """
-    env = None
-    env_name = None
-    prefixes = list_all_known_prefixes()
+    known_envs = get_environment_info()
 
     if hasattr(args, "name") and args.name:
-        name_to_prefix = get_name_to_prefix_map(prefixes)
-        env = name_to_prefix.get(args.name)
-        env_name = args.name
+        lookup_attr = "name"
+        value = args.name
 
-        # We passed in an environment that does not exist. Let the normal program flow catch
-        # this error instead
-        if env is None:
-            return
+    elif hasattr(args, "prefix") and args.prefix:
+        lookup_attr = "path"
+        value = Path(args.prefix)
 
-    if hasattr(args, "prefix") and args.prefix:
-        env = args.prefix
-        env_name = args.prefix
+    else:
+        lookup_attr = "path"
+        value = Path(context.active_prefix)
 
-    # If neither `--prefix` or `--name` has been provided, we fall back to the
-    # `context.active_prefix` value
-    if env is None:
-        prefix_to_name = get_prefix_to_name_map(prefixes)
-        env = context.active_prefix
+    # Create a list of locked environments; length should be zero or one
+    locked_envs = [
+        env for env in known_envs if getattr(env, lookup_attr) == value and env.locked
+    ]
 
-        # This "<unknown>" condition shouldn't happen, but it's better than displaying "None"
-        env_name = prefix_to_name.get(context.active_prefix, "<unknown>")
-
-    if is_environment_locked(env):
+    if locked_envs:
+        env = locked_envs[0]
         raise CondaEnvLockError(
-            f"Environment \"{env_name}\" is currently locked. Run `conda envlock '{env_name}'` to unlock it"
+            f'Environment "{env.name or env.path}" is currently locked. '
+            "Run `conda envlock '{env.name or env.path}'` to unlock it."
         )
 
 
@@ -225,8 +262,4 @@ def conda_pre_commands():
 
 @hookimpl
 def conda_subcommands():
-    yield CondaSubcommand(
-        name=COMMAND_NAME,
-        action=conda_env_lock,
-        summary=conda_env_lock.__doc__
-    )
+    yield CondaSubcommand(name=COMMAND_NAME, action=wrapper, summary=wrapper.__doc__)

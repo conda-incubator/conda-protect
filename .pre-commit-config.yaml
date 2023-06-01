@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    - id: check-yaml
+      exclude: "(mkdocs.yml|recipe/meta.yaml)"
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: ''  # Use the sha / tag you want to point at
+    hooks:
+    - id: mypy
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+        args: ["--py310-plus"]
+  - repo: https://github.com/akaihola/darker
+    rev: 1.5.1
+    hooks:
+      - id: darker
+        additional_dependencies: [black==22.10.0]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "conda-envlock"
-version = "0.1.0"
+version = "0.2.0"
 description = "Lock and unlock conda environments to avoid mistakenly modifying them"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
@@ -24,7 +24,8 @@ classifiers = [
 ]
 dependencies = [
   "conda",
-  "platformdirs"
+  "rich",
+  "click"
 ]
 
 [project.entry-points.conda]

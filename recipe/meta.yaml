@@ -21,7 +21,8 @@ requirements:
   run:
     - python >=3.8.1,<4.0.0
     - conda
-    - platformdirs
+    - rich
+    - click
 
 test:
   imports:
