@@ -187,10 +187,13 @@ def cli():
 @click.argument("environment", callback=validate_environment, required=False)
 def envlock_lock(environment):
     """
-    Locks environments
+    Locks or unlocks environments
     """
     env = toggle_environment_lock(environment)
-    r_print(f"{env.name} is {LOCKED_SYMBOL if env.locked else UNLOCKED_SYMBOL}")
+    locked_or_unlocked = "[green]locked" if env.locked else "[magenta]unlocked"
+    r_print(
+        f"{env.name} is {LOCKED_SYMBOL if env.locked else UNLOCKED_SYMBOL} {locked_or_unlocked}"
+    )
 
 
 @cli.command("list")
@@ -247,7 +250,7 @@ def custom_plugin_pre_commands_action(command: str, args):
         env = locked_envs[0]
         raise CondaEnvLockError(
             f'Environment "{env.name or env.path}" is currently locked. '
-            "Run `conda envlock '{env.name or env.path}'` to unlock it."
+            f"Run `conda envlock '{env.name or env.path}'` to unlock it."
         )
 
 

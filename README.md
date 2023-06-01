@@ -23,11 +23,26 @@ conda install -c thath conda-envlock
 
 ## Usage
 
-To lock an environment, simply run the following command:
+Conda envlock comes with several subcommands. These can all be found under `conda el`:
+
+```
+Usage: conda el [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  list  List environments in conda and show whether they are locked
+  lock  Locks or unlocks environments
+```
+
+### Locking and unlocking environments
+
+To lock an environment, run the `lock` subcommand:
 
 ```commandline
-$ conda envlock base
-base is locked 🔒
+$ conda el lock base
+base is 🔐 locked
 ```
 
 Now, when you try to run a command against this environment, conda will exit early:
@@ -41,6 +56,38 @@ CondaEnvLockError: Environment "base" is currently locked. Run `conda envlock 'b
 If you want to unlock it to add/modify anything, just run the `envlock` command again:
 
 ```commandline
-$ conda envlock base
+$ conda el lock base
 base is unlocked 🔓
+```
+
+### Listing environments and showing lock status
+
+Conda envlock also contains a `list` subcommand that comes in handy when you've forgotten which environments you locked:
+
+```commandline
+$ conda el list
+                        Conda Environments
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Name      ┃ Prefix                                ┃ Status    ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ -         │ /tmp/user1-test-env-one               │ 🔐 locked │
+│ base      │ /home/user1/opt/conda/                │ 🔐 locked │
+│ test_env1 │ /home/user1/opt/conda/envs/test_env1  │ 🔐 locked │
+│ test_env2 │ /home/user1/opt/conda/envs/test_env2  │           │
+│ test_env3 │ /home/user1/opt/conda/envs/test_env3  │           │
+└───────────┴───────────────────────────────────────┴───────────┘
+```
+
+You can also list just the locked environments with the `--locked` option:
+
+```commandline
+$ conda el list --locked
+                        Conda Environments
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Name      ┃ Prefix                                ┃ Status    ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ -         │ /tmp/user1-test-env-one               │ 🔐 locked │
+│ base      │ /home/user1/opt/conda/                │ 🔐 locked │
+│ test_env1 │ /home/user1/opt/conda/envs/test_env1  │ 🔐 locked │
+└───────────┴───────────────────────────────────────┴───────────┘
 ```
