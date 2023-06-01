@@ -1,4 +1,4 @@
-name: latz tests
+name: conda-envlock tests
 
 on:
   push:
