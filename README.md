@@ -53,7 +53,7 @@ $ conda install -n base python
 CondaEnvLockError: Environment "base" is currently locked. Run `conda envlock 'base'` to unlock it
 ```
 
-If you want to unlock it to add/modify anything, just run the `envlock` command again:
+If you want to unlock it to add/modify anything, just run the `lock` subcommand again:
 
 ```commandline
 $ conda el lock base
