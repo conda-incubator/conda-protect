@@ -1,5 +1,5 @@
 {% set name = "conda-envlock" %}
-{% set version = "0.1.0" %}
+{% set version = "0.2.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/travishathaway/{{ name }}/archive/refs/tags/{{ version}}.tar.gz
-  sha256: 59abff207cce005eedb1ea0ed6e092664d120fad5142ec3148d9c5e74b5c7086
+  sha256: 99f5b48d457d8983cc9727d1629722cffbf26302176bbf83d6b757096156a12c
 
 build:
   noarch: python
