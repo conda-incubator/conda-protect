@@ -1,0 +1,8 @@
+conda-forge::darker
+conda-forge::flake8
+conda-forge::mypy
+conda-forge::pyupgrade
+conda-forge::pytest
+conda-forge::pytest-cov
+conda-forge::pytest-mock
+conda-forge::pre-commit

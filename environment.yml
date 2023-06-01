@@ -1,0 +1,8 @@
+name: conda-envlock
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8
+  - click
+  - conda>=23.7.0
+  - rich
