@@ -4,5 +4,5 @@ channels:
 dependencies:
   - python>=3.8
   - click
-  - conda>=23.7.0
+  - conda-canary/label/dev::conda
   - rich
