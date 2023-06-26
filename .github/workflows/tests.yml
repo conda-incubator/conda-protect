@@ -1,4 +1,4 @@
-name: conda-envlock tests
+name: conda-guard tests
 
 on:
   push:

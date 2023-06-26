@@ -1,4 +1,4 @@
-name: conda-envlock
+name: conda-guard
 channels:
   - conda-forge
 dependencies:

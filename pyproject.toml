@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "conda-envlock"
+name = "conda-guard"
 version = "0.2.0"
-description = "Lock and unlock conda environments to avoid mistakenly modifying them"
+description = "Guard conda environments to avoid mistakenly modifying them"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 classifiers = [
@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.entry-points.conda]
-conda-envlock = "envlock.main"
+conda-guard = "guard.main"
 
 [tool.setuptools]
-packages = ["envlock"]
+packages = ["guard"]

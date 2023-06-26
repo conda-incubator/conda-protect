@@ -1,4 +1,4 @@
-{% set name = "conda-envlock" %}
+{% set name = "conda-guard" %}
 {% set version = "0.2.0" %}
 
 package:
@@ -26,15 +26,15 @@ requirements:
 
 test:
   imports:
-    - envlock
+    - guard
   commands:
     - pip check
   requires:
     - pip
 
 about:
-  home: https://github.com/travishathaway/conda-envlock
-  summary: Lock and unlock conda environments to avoid mistakenly modifying them
+  home: https://github.com/travishathaway/conda-guard
+  summary: Guard conda environments to avoid mistakenly modifying them
   license: GPL-3.0
   license_file: LICENSE
 
