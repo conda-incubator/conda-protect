@@ -149,7 +149,7 @@ def display_environment_info_table(environments: Sequence[EnvironmentInfo]) -> N
         table.add_row(
             row.name or "-",
             str(row.path),
-            f"{GUARDED_SYMBOL} [green]locked" if row.guarded else "",
+            f"{GUARDED_SYMBOL} [green]guarded" if row.guarded else "",
         )
 
     console = Console()
@@ -201,15 +201,15 @@ def guard(environment):
 
 
 @click.command("glist")
-@click.option("--locked", "-l", help="Only show guarded environments", is_flag=True)
+@click.option("--guarded", "-g", help="Only show guarded environments", is_flag=True)
 @click.option("--named", "-n", help="Only show named environments", is_flag=True)
-def glist(locked, named):
+def glist(guarded, named):
     """
     List environments in conda and show whether they are guarded
     """
     all_environments = get_environment_info()
 
-    if locked:
+    if guarded:
         all_environments = [env for env in all_environments if env.guarded]
 
     if named:
@@ -252,13 +252,13 @@ def custom_plugin_pre_commands_action(command: str, parsed_args=None, raw_args=N
         lookup_attr = "path"
         value = Path(context.active_prefix)
 
-    # Create a list of locked environments; length should be zero or one
-    locked_envs = [
+    # Create a list of guarded environments; length should be zero or one
+    guarded_envs = [
         env for env in known_envs if getattr(env, lookup_attr) == value and env.guarded
     ]
 
-    if locked_envs:
-        env = locked_envs[0]
+    if guarded_envs:
+        env = guarded_envs[0]
         raise CondaGuardError(
             f'Environment "{env.name or env.path}" is currently guarded. '
             f"Run `conda {GUARD_COMMAND_NAME} '{env.name or env.path}'` to remove guard it."

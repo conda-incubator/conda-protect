@@ -3,7 +3,7 @@ These are mostly just integration tests that make sure this plugin
 works at a high level.
 """
 import pytest
-from conda.testing import conda_cli, tmp_env, path_factory  # noqa: F401
+from conda.testing import conda_cli  # noqa: F401
 
 from guard.main import GUARDFILE_NAME, CondaGuardError
 
@@ -18,7 +18,14 @@ def conda_environment(conda_cli, tmp_path):  # noqa: F811
 
     assert err == ""
 
-    return environment
+    yield environment
+
+    # remove guard
+    conda_cli("guard", str(conda_environment))
+
+    # remove environment
+    out, err, code = conda_cli("env", "remove", "--prefix", str(environment))
+    assert err == ""
 
 
 def test_guard_file_created(mocker, conda_cli, conda_environment):  # noqa: F811
