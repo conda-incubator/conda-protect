@@ -20,9 +20,6 @@ def conda_environment(conda_cli, tmp_path):  # noqa: F811
 
     yield environment
 
-    # remove guard
-    conda_cli("guard", str(conda_environment))
-
     # remove environment
     out, err, code = conda_cli("env", "remove", "--prefix", str(environment))
     assert err == ""
@@ -39,6 +36,11 @@ def test_guard_file_created(mocker, conda_cli, conda_environment):  # noqa: F811
     assert err == ""
     assert conda_environment.joinpath(GUARDFILE_NAME).is_file()
 
+    # remove guard
+    out, err, code = conda_cli("guard", str(conda_environment))
+
+    assert err == ""
+
 
 def test_guarded_command_fails(mocker, conda_cli, conda_environment):  # noqa: F811
     """
@@ -52,3 +54,8 @@ def test_guarded_command_fails(mocker, conda_cli, conda_environment):  # noqa: F
 
     with pytest.raises(CondaGuardError):
         conda_cli("install", "--prefix", str(conda_environment), "python")
+
+    # remove guard
+    out, err, code = conda_cli("guard", str(conda_environment))
+
+    assert err == ""

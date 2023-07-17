@@ -230,7 +230,31 @@ def glist_wrapper(args):
     )
 
 
-def custom_plugin_pre_commands_action(command: str, parsed_args=None, raw_args=None):
+def _get_active_environment() -> tuple[str, str | Path] | tuple[None, None]:
+    """
+    Uses the `conda.base.context.context` object to look up the active environment.
+
+    This is passed in as a command line argument and can either come from the `--prefix`
+    or `--name` option. The parsed arguments data is stored on the context object in the
+    `raw_data` attribute.
+    """
+    arg_data = context.raw_data.get("cmd_line")
+
+    if not arg_data:
+        return None, None
+
+    if name_option := arg_data.get("name"):
+        if name := getattr(name_option, "_raw_value", None):
+            return "name", name
+
+    if prefix_option := arg_data.get("prefix"):
+        if prefix := getattr(prefix_option, "_raw_value", None):
+            return "path", Path(prefix)
+
+    return None, None
+
+
+def conda_guard_pre_commands_action(command: str):
     """
     Checks to see if the current environment being acted on is guarded and if so, raise error to
     exit program early
@@ -239,16 +263,9 @@ def custom_plugin_pre_commands_action(command: str, parsed_args=None, raw_args=N
           We will have to look inside the file and pluck out the environment name
     """
     known_envs = get_environment_info()
+    lookup_attr, value = _get_active_environment()
 
-    if hasattr(parsed_args, "name") and parsed_args.name:
-        lookup_attr = "name"
-        value = parsed_args.name
-
-    elif hasattr(parsed_args, "prefix") and parsed_args.prefix:
-        lookup_attr = "path"
-        value = Path(parsed_args.prefix)
-
-    else:
+    if lookup_attr is None or value is None:
         lookup_attr = "path"
         value = Path(context.active_prefix)
 
@@ -269,7 +286,7 @@ def custom_plugin_pre_commands_action(command: str, parsed_args=None, raw_args=N
 def conda_pre_commands():
     yield CondaPreCommand(
         name=f"{PLUGIN_NAME}_pre_command",
-        action=custom_plugin_pre_commands_action,
+        action=conda_guard_pre_commands_action,
         run_for={"install", "remove", "update", "info", "env_update", "env_remove"},
     )
 
