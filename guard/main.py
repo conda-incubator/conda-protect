@@ -267,7 +267,7 @@ def conda_guard_pre_commands_action(command: str):
 
     if lookup_attr is None or value is None:
         lookup_attr = "path"
-        value = Path(context.active_prefix)
+        value = Path(context.target_prefix)
 
     # Create a list of guarded environments; length should be zero or one
     guarded_envs = [
