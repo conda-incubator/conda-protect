@@ -287,7 +287,7 @@ def conda_pre_commands():
     yield CondaPreCommand(
         name=f"{PLUGIN_NAME}_pre_command",
         action=conda_guard_pre_commands_action,
-        run_for={"install", "remove", "update", "info", "env_update", "env_remove"},
+        run_for={"install", "remove", "update", "env_update", "env_remove"},
     )
 
 
