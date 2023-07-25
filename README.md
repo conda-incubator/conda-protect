@@ -53,7 +53,8 @@ base is unlocked 🔓
 
 ### Listing environments and showing guard status
 
-Conda envlock also contains a `list` subcommand that comes in handy when you've forgotten which environments you locked:
+Conda guard also installs a `glist` subcommand that comes in handy when you've forgotten which
+environments are guarded:
 
 ```commandline
 $ conda glist
@@ -69,7 +70,7 @@ $ conda glist
 └───────────┴───────────────────────────────────────┴────────────┘
 ```
 
-You can also list just the locked environments with the `--guarded` option:
+You can also list just the guarded environments with the `--guarded` option:
 
 ```commandline
 $ conda glist --guarded
