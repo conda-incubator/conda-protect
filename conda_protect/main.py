@@ -206,13 +206,13 @@ def guard(environment):
     "--protected", "-p", help="Only show protected environments", is_flag=True
 )
 @click.option("--named", "-n", help="Only show named environments", is_flag=True)
-def glist(guarded, named):
+def glist(protected, named):
     """
     List environments in conda and show whether they are protected
     """
     all_environments = get_environment_info()
 
-    if guarded:
+    if protected:
         all_environments = [env for env in all_environments if env.guarded]
 
     if named:
