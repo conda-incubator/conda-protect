@@ -1,12 +1,10 @@
-# conda-schutz 🔐
+# conda-protect 🔐
 
-("schutz" is a German word which roughly translates to guard 😉)
-
-Guard conda environments to avoid mistakenly modifying them.
+Protect conda environments to avoid mistakenly modifying them.
 
 In conda, it's sometimes nice to set certain environments as "off-limits". This can especially
-be true for the base environment. This plugin that allows you to guard arbitrary environments,
-and it will cause conda to exit early on the following commands if an environment is guarded:
+be true for the base environment. This plugin that allows you to protect arbitrary environments,
+and it will cause conda to exit early on the following commands if an environment is protected:
 
 - install
 - create
@@ -20,22 +18,22 @@ and it will cause conda to exit early on the following commands if an environmen
 You can install this plugin by running the following command:
 
 ```
-conda install -c thath conda-schutz
+conda install -c thath conda-protect
 ```
 
 ## Usage
 
-Conda guard installs several new subcommands for conda: one for guarding environments `schutz`
-and one for listing guarded environments `slist`. These commands are explained in further
+Conda protect installs several new subcommands for conda: one for protecting environments `protect`
+and one for listing guarded environments `plist`. These commands are explained in further
 detail below:
 
-### Guarding environments
+### Protecting environments
 
-To guard an environment, run the `schutz` subcommand:
+To guard an environment, run the `protect` subcommand:
 
 ```commandline
-$ conda schutz base
-base is 🔐 guarded
+$ conda protect base
+base is 🔐 protected
 ```
 
 Now, when you try to run a command against this environment, conda will exit early:
@@ -43,45 +41,45 @@ Now, when you try to run a command against this environment, conda will exit ear
 ```commandline
 $ conda install -n base python
 
-CondaSchutzError: Environment "base" is currently guarded. Run `conda guard 'base'` to remove guard.
+CondaProtectError: Environment "base" is currently protected. Run `conda protect 'base'` to remove protection.
 ```
 
-If you want to remove a guard to add/modify anything, just run the `guard` subcommand again:
+If you want to remove a protection to add/modify anything, just run the `protect` subcommand again:
 
 ```commandline
-$ conda schutz base
-base is unlocked 🔓
+$ conda protect base
+base is unprotected 🔓
 ```
 
-### Listing environments and showing guard status
+### Listing environments and showing protection status
 
-Conda schutz also installs a `slist` subcommand that comes in handy when you've forgotten which
-environments are guarded:
+Conda protect also installs a `plist` subcommand that comes in handy when you've forgotten which
+environments are protected:
 
 ```commandline
-$ conda slist
+$ conda plist
                         Conda Environments
-┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
-┃ Name      ┃ Prefix                                ┃ Status     ┃
-┡━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
-│ -         │ /tmp/user1-test-env-one               │ 🔐 guarded │
-│ base      │ /home/user1/opt/conda/                │ 🔐 guarded │
-│ test_env1 │ /home/user1/opt/conda/envs/test_env1  │ 🔐 guarded │
-│ test_env2 │ /home/user1/opt/conda/envs/test_env2  │            │
-│ test_env3 │ /home/user1/opt/conda/envs/test_env3  │            │
-└───────────┴───────────────────────────────────────┴────────────┘
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Name      ┃ Prefix                                ┃ Status       ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ -         │ /tmp/user1-test-env-one               │ 🔐 protected │
+│ base      │ /home/user1/opt/conda/                │ 🔐 protected │
+│ test_env1 │ /home/user1/opt/conda/envs/test_env1  │ 🔐 protected │
+│ test_env2 │ /home/user1/opt/conda/envs/test_env2  │              │
+│ test_env3 │ /home/user1/opt/conda/envs/test_env3  │              │
+└───────────┴───────────────────────────────────────┴──────────────┘
 ```
 
-You can also list just the guarded environments with the `--guarded` option:
+You can also list just the protected environments with the `--protected` option:
 
 ```commandline
-$ conda slist --guarded
+$ conda plist --protected
                         Conda Environments
-┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
-┃ Name      ┃ Prefix                                ┃ Status     ┃
-┡━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
-│ -         │ /tmp/user1-test-env-one               │ 🔐 guarded │
-│ base      │ /home/user1/opt/conda/                │ 🔐 guarded │
-│ test_env1 │ /home/user1/opt/conda/envs/test_env1  │ 🔐 guarded │
-└───────────┴───────────────────────────────────────┴────────────┘
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Name      ┃ Prefix                                ┃ Status       ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ -         │ /tmp/user1-test-env-one               │ 🔐 protected │
+│ base      │ /home/user1/opt/conda/                │ 🔐 protected │
+│ test_env1 │ /home/user1/opt/conda/envs/test_env1  │ 🔐 protected │
+└───────────┴───────────────────────────────────────┴──────────────┘
 ```

@@ -5,7 +5,7 @@ works at a high level.
 import pytest
 from conda.testing import conda_cli  # noqa: F401
 
-from schutz.main import GUARDFILE_NAME, CondaSchutzError, GUARD_COMMAND_NAME
+from conda_protect.main import GUARDFILE_NAME, CondaProtectError, GUARD_COMMAND_NAME
 
 
 @pytest.fixture()
@@ -27,7 +27,7 @@ def conda_environment(conda_cli, tmp_path):  # noqa: F811
 
 def test_guard_file_created(mocker, conda_cli, conda_environment):  # noqa: F811
     """
-    When an environment is guarded, a schutz file will be written to its root.
+    When an environment is guarded, a conda_protect file will be written to its root.
     """
     mocker.patch("sys.argv", ["conda", GUARD_COMMAND_NAME, str(conda_environment)])
 
@@ -36,7 +36,7 @@ def test_guard_file_created(mocker, conda_cli, conda_environment):  # noqa: F811
     assert err == ""
     assert conda_environment.joinpath(GUARDFILE_NAME).is_file()
 
-    # remove schutz
+    # remove conda_protect
     out, err, code = conda_cli(GUARD_COMMAND_NAME, str(conda_environment))
 
     assert err == ""
@@ -52,10 +52,10 @@ def test_guarded_command_fails(mocker, conda_cli, conda_environment):  # noqa: F
 
     assert err == ""
 
-    with pytest.raises(CondaSchutzError):
+    with pytest.raises(CondaProtectError):
         conda_cli("install", "--prefix", str(conda_environment), "python")
 
-    # remove schutz
+    # remove conda_protect
     out, err, code = conda_cli(GUARD_COMMAND_NAME, str(conda_environment))
 
     assert err == ""

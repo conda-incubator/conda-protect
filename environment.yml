@@ -1,4 +1,4 @@
-name: conda-schutz
+name: conda-conda_protect
 channels:
   - conda-forge
 dependencies:
