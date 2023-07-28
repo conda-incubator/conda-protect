@@ -17,16 +17,16 @@ from rich.console import Console
 from rich.table import Table
 
 #: Name of the plugin; this will appear in certain outputs
-PLUGIN_NAME = "conda_guard"
+PLUGIN_NAME = "conda_schutz"
 
-#: Name of the guard file that we create in environments themselves to signal they are guarded.
+#: Name of the schutz file that we create in environments themselves to signal they are guarded.
 GUARDFILE_NAME = ".guarded"
 
 #: Name of the command used when guarding/removing guards for environments
-GUARD_COMMAND_NAME = "guard"
+GUARD_COMMAND_NAME = "schutz"
 
 #: Name of the command used when listing guarded environments
-GUARD_LIST_COMMAND_NAME = "glist"
+GUARD_LIST_COMMAND_NAME = "slist"
 
 #: Symbol we show for guarded environments
 GUARDED_SYMBOL = "🔐"
@@ -37,7 +37,7 @@ UNGUARDED_SYMBOL = "🔓"
 logger = logging.getLogger(PLUGIN_NAME)
 
 
-class CondaGuardError(CondaError):
+class CondaSchutzError(CondaError):
     """
     Error raised when we attempt to perform an action on a guarded environment
     """
@@ -90,14 +90,14 @@ def toggle_environment_guard(env: EnvironmentInfo) -> EnvironmentInfo:
         try:
             env.path.joinpath(GUARDFILE_NAME).unlink()
         except OSError as exc:
-            raise CondaGuardError(
+            raise CondaSchutzError(
                 f"Unable to remove a guard for the following reason: {exc}"
             )
     else:
         try:
             env.path.joinpath(GUARDFILE_NAME).touch()
         except OSError as exc:
-            raise CondaGuardError(f"Unable to guard for the following reason: {exc}")
+            raise CondaSchutzError(f"Unable to guard for the following reason: {exc}")
 
     return EnvironmentInfo(name=env.name, path=env.path, guarded=not env.guarded)
 
@@ -167,13 +167,13 @@ def validate_environment(ctx, param, value) -> EnvironmentInfo | None:
     if value not in prefixes:
         if value is not None:
             if value not in name_to_prefix.keys():
-                raise CondaGuardError("Environment not found")
+                raise CondaSchutzError("Environment not found")
             path = Path(name_to_prefix[value])
             return EnvironmentInfo(
                 name=value, path=path, guarded=path.joinpath(GUARDFILE_NAME).exists()
             )
         else:
-            raise CondaGuardError("Please pass an environment name or prefix")
+            raise CondaSchutzError("Please pass an environment name or prefix")
 
     path = Path(value)
     return EnvironmentInfo(
@@ -181,7 +181,7 @@ def validate_environment(ctx, param, value) -> EnvironmentInfo | None:
     )
 
 
-@click.command("guard")
+@click.command(GUARD_COMMAND_NAME)
 @click.argument("environment", callback=validate_environment, required=False)
 def guard(environment):
     """
@@ -200,7 +200,7 @@ def guard(environment):
     )
 
 
-@click.command("glist")
+@click.command(GUARD_LIST_COMMAND_NAME)
 @click.option("--guarded", "-g", help="Only show guarded environments", is_flag=True)
 @click.option("--named", "-n", help="Only show named environments", is_flag=True)
 def glist(guarded, named):
@@ -276,9 +276,9 @@ def conda_guard_pre_commands_action(command: str):
 
     if guarded_envs:
         env = guarded_envs[0]
-        raise CondaGuardError(
+        raise CondaSchutzError(
             f'Environment "{env.name or env.path}" is currently guarded. '
-            f"Run `conda {GUARD_COMMAND_NAME} '{env.name or env.path}'` to remove guard it."
+            f"Run `conda {GUARD_COMMAND_NAME} '{env.name or env.path}'` to remove it."
         )
 
 

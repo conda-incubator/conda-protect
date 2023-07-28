@@ -1,8 +1,8 @@
-name: conda-guard
+name: conda-schutz
 channels:
   - conda-forge
 dependencies:
   - python>=3.8
   - click
-  - conda-canary/label/dev::conda
+  - conda>=23.7.2
   - rich

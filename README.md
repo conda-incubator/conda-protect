@@ -1,4 +1,6 @@
-# conda-guard 🔐
+# conda-schutz 🔐
+
+("schutz" is a German word which roughly translates to guard 😉)
 
 Guard conda environments to avoid mistakenly modifying them.
 
@@ -18,21 +20,21 @@ and it will cause conda to exit early on the following commands if an environmen
 You can install this plugin by running the following command:
 
 ```
-conda install -c thath conda-guard
+conda install -c thath conda-schutz
 ```
 
 ## Usage
 
-Conda guard installs several new subcommands for conda: one for guarding environments `guard`
-and one for listing guarded environments `glist`. These commands are explained in further
+Conda guard installs several new subcommands for conda: one for guarding environments `schutz`
+and one for listing guarded environments `slist`. These commands are explained in further
 detail below:
 
 ### Guarding environments
 
-To guard an environment, run the `guard` subcommand:
+To guard an environment, run the `schutz` subcommand:
 
 ```commandline
-$ conda guard base
+$ conda schutz base
 base is 🔐 guarded
 ```
 
@@ -41,23 +43,23 @@ Now, when you try to run a command against this environment, conda will exit ear
 ```commandline
 $ conda install -n base python
 
-CondaGuardError: Environment "base" is currently guarded. Run `conda guard 'base'` to remove guard.
+CondaSchutzError: Environment "base" is currently guarded. Run `conda guard 'base'` to remove guard.
 ```
 
 If you want to remove a guard to add/modify anything, just run the `guard` subcommand again:
 
 ```commandline
-$ conda guard base
+$ conda schutz base
 base is unlocked 🔓
 ```
 
 ### Listing environments and showing guard status
 
-Conda guard also installs a `glist` subcommand that comes in handy when you've forgotten which
+Conda schutz also installs a `slist` subcommand that comes in handy when you've forgotten which
 environments are guarded:
 
 ```commandline
-$ conda glist
+$ conda slist
                         Conda Environments
 ┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
 ┃ Name      ┃ Prefix                                ┃ Status     ┃
@@ -73,7 +75,7 @@ $ conda glist
 You can also list just the guarded environments with the `--guarded` option:
 
 ```commandline
-$ conda glist --guarded
+$ conda slist --guarded
                         Conda Environments
 ┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
 ┃ Name      ┃ Prefix                                ┃ Status     ┃

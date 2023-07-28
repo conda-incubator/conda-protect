@@ -1,5 +1,5 @@
-{% set name = "conda-guard" %}
-{% set version = "0.2.0" %}
+{% set name = "conda-schutz" %}
+{% set version = "0.3.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/travishathaway/{{ name }}/archive/refs/tags/{{ version}}.tar.gz
-  sha256: 99f5b48d457d8983cc9727d1629722cffbf26302176bbf83d6b757096156a12c
+  sha256: 7c7db2d973a5b448f6802908f147c2c486c1865a2f7fe818120d25986f55410c
 
 build:
   noarch: python
@@ -20,13 +20,13 @@ requirements:
     - pip
   run:
     - python >=3.8.1,<4.0.0
-    - conda
+    - conda >=23.7.0
     - rich
     - click
 
 test:
   imports:
-    - guard
+    - schutz
   commands:
     - pip check
   requires:

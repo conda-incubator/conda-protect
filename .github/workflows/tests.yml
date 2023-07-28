@@ -1,4 +1,4 @@
-name: conda-guard tests
+name: conda-schutz tests
 
 on:
   push:

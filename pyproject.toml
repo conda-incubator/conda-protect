@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "conda-guard"
-version = "0.3.0"
+name = "conda-schutz"
+version = "0.4.0"
 description = "Guard conda environments to avoid mistakenly modifying them"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
@@ -23,13 +23,13 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy"
 ]
 dependencies = [
-  "conda",
+  "conda>=23.7.0",
   "rich",
   "click"
 ]
 
 [project.entry-points.conda]
-conda-guard = "guard.main"
+conda-schutz = "schutz.main"
 
 [tool.setuptools]
-packages = ["guard"]
+packages = ["schutz"]
