@@ -1,0 +1,65 @@
+[project]
+name = "conda-auth"
+version = "0.2.0"
+description = "Protects conda environments to avoid mistakenly modifying them"
+authors = ["Travis Hathaway <travis.j.hathaway@gmail.com>"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
+
+[tasks]
+# Test commands
+test = "pytest --doctest-modules"
+testcov = "pytest --cov=conda_auth --cov-report=xml --doctest-modules"
+testhtml = "pytest --cov=conda_auth --cov-report=html --doctest-modules"
+
+# Build commands
+build = "rattler-build build --recipe recipe.yaml"
+
+[dependencies]
+python = ">=3.8"
+conda = ">=23.7.0"
+keyring = "*"
+requests = "*"
+"ruamel.yaml" = "*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py310.dependencies]
+python = "3.10.*"
+
+[feature.py39.dependencies]
+python = "3.9.*"
+
+[feature.py38.dependencies]
+python = "3.8.*"
+
+[feature.dev.dependencies]
+darker = "*"
+flake8 = "*"
+"keyrings.alt" = "*"
+mypy = "*"
+pip = "*"
+pyupgrade = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pre-commit = "*"
+rattler-build = "*"
+
+[feature.dev.pypi-dependencies]
+conda-auth = { path = ".", editable = true }
+
+[environments]
+dev = ["dev"]
+dev-py312 = ["dev", "py312"]
+dev-py311 = ["dev", "py311"]
+dev-py310 = ["dev", "py310"]
+dev-py39 = ["dev", "py39"]
+dev-py38 = ["dev", "py38"]
+
+[activation]
+scripts = ["dev/setup.sh"]

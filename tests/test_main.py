@@ -21,7 +21,7 @@ def conda_environment(conda_cli, tmp_path):  # noqa: F811
     yield environment
 
     # remove environment
-    out, err, code = conda_cli("env", "remove", "--prefix", str(environment))
+    out, err, code = conda_cli("env", "remove", "--yes", "--prefix", str(environment))
     assert err == ""
 
 
