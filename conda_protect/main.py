@@ -265,6 +265,10 @@ def conda_guard_pre_commands_action(command: str):
     TODO: This still doesn't handle `conda env update -f environment.yml`
           We will have to look inside the file and pluck out the environment name
     """
+    # Allow things to go forward when `dry_run` is `True`
+    if context.dry_run:
+        return
+
     known_envs = get_environment_info()
     lookup_attr, value = _get_active_environment()
 

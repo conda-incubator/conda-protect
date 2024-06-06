@@ -4,6 +4,7 @@ works at a high level.
 """
 import pytest
 from conda.testing import conda_cli  # noqa: F401
+from conda.exceptions import DryRunExit
 
 from conda_protect.main import GUARDFILE_NAME, CondaProtectError, GUARD_COMMAND_NAME
 
@@ -53,7 +54,26 @@ def test_guarded_command_fails(mocker, conda_cli, conda_environment):  # noqa: F
     assert err == ""
 
     with pytest.raises(CondaProtectError):
-        conda_cli("install", "--prefix", str(conda_environment), "python")
+        conda_cli("install", "--prefix", str(conda_environment), "ca-certificates")
+
+    # remove conda_protect
+    out, err, code = conda_cli(GUARD_COMMAND_NAME, str(conda_environment))
+
+    assert err == ""
+
+
+def test_dry_run_continues(mocker, conda_cli, conda_environment):
+    """
+    When `--dry-run` is used, the environment is not guarded
+    """
+    mocker.patch("sys.argv", ["conda", GUARD_COMMAND_NAME, str(conda_environment)])
+
+    out, err, code = conda_cli(GUARD_COMMAND_NAME, str(conda_environment))
+
+    assert err == ""
+
+    with pytest.raises(DryRunExit):
+        conda_cli("install", "--dry-run", "--prefix", str(conda_environment), "ca-certificates")
 
     # remove conda_protect
     out, err, code = conda_cli(GUARD_COMMAND_NAME, str(conda_environment))
