@@ -79,3 +79,16 @@ def test_dry_run_continues(mocker, conda_cli, conda_environment):
     out, err, code = conda_cli(GUARD_COMMAND_NAME, str(conda_environment))
 
     assert err == ""
+
+
+def test_ensure_help_works(conda_cli):
+    """
+    Makes sure that both `-h` and `--help` work to print command help
+    """
+    out, err, code = conda_cli(GUARD_COMMAND_NAME, "-h")
+
+    assert "Usage: conda protect" in out
+
+    out, err, code = conda_cli(GUARD_COMMAND_NAME, "--help")
+
+    assert "Usage: conda protect" in out

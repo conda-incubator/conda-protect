@@ -223,7 +223,12 @@ def glist(protected, named):
 
 def guard_wrapper(args):
     """Protect environments so changes are not accidentally made to them"""
-    guard(args=args, prog_name=f"conda {GUARD_COMMAND_NAME}", standalone_mode=False)
+    guard(
+        args=args,
+        prog_name=f"conda {GUARD_COMMAND_NAME}",
+        standalone_mode=False,
+        help_option_names=["-h", "--help"]
+    )
 
 
 def glist_wrapper(args):
