@@ -26,9 +26,6 @@ GUARDFILE_NAME = ".protected"
 #: Name of the command used when guarding/removing guards for environments
 GUARD_COMMAND_NAME = "protect"
 
-#: Name of the command used when listing guarded environments
-GUARD_LIST_COMMAND_NAME = "plist"
-
 #: Symbol we show for guarded environments
 GUARDED_SYMBOL = "🔐"
 
@@ -174,7 +171,7 @@ def validate_environment(ctx, param, value) -> EnvironmentInfo | None:
                 name=value, path=path, guarded=path.joinpath(GUARDFILE_NAME).exists()
             )
         else:
-            raise CondaProtectError("Please pass an environment name or prefix")
+            return
 
     path = Path(value)
     return EnvironmentInfo(
@@ -184,7 +181,14 @@ def validate_environment(ctx, param, value) -> EnvironmentInfo | None:
 
 @click.command(GUARD_COMMAND_NAME)
 @click.argument("environment", callback=validate_environment, required=False)
-def guard(environment):
+@click.option(
+    "--list", "-l", "list_envs", help="List conda environments and show whether they are protected", is_flag=True
+)
+@click.option(
+    "--protected", "-p", help="When using -l/--list, only show protected environments", is_flag=True
+)
+@click.option("--named", "-n", help="When using -l/--list, only show named environments", is_flag=True)
+def guard(environment, list_envs, protected, named):
     """
     Protect environments so changes are not accidentally made to them.
 
@@ -193,32 +197,24 @@ def guard(environment):
     actions on it, and if this protect-file exists, the actions are not run
     and the command exits early.
     """
-    env = toggle_environment_guard(environment)
-    guarded_or_unguarded = "[green]protected" if env.guarded else "[magenta]unprotected"
-    r_print(
-        f"{env.name} is {GUARDED_SYMBOL if env.guarded else UNGUARDED_SYMBOL} "
-        f"{guarded_or_unguarded}"
-    )
+    if list_envs:
+        all_environments = get_environment_info()
 
+        if protected:
+            all_environments = [env for env in all_environments if env.guarded]
 
-@click.command(GUARD_LIST_COMMAND_NAME)
-@click.option(
-    "--protected", "-p", help="Only show protected environments", is_flag=True
-)
-@click.option("--named", "-n", help="Only show named environments", is_flag=True)
-def glist(protected, named):
-    """
-    List environments in conda and show whether they are protected
-    """
-    all_environments = get_environment_info()
+        if named:
+            all_environments = [env for env in all_environments if env.name]
 
-    if protected:
-        all_environments = [env for env in all_environments if env.guarded]
+        display_environment_info_table(all_environments)
 
-    if named:
-        all_environments = [env for env in all_environments if env.name]
-
-    display_environment_info_table(all_environments)
+    else:
+        env = toggle_environment_guard(environment)
+        guarded_or_unguarded = "[green]protected" if env.guarded else "[magenta]unprotected"
+        r_print(
+            f"{env.name} is {GUARDED_SYMBOL if env.guarded else UNGUARDED_SYMBOL} "
+            f"{guarded_or_unguarded}"
+        )
 
 
 def guard_wrapper(args):
@@ -228,13 +224,6 @@ def guard_wrapper(args):
         prog_name=f"conda {GUARD_COMMAND_NAME}",
         standalone_mode=False,
         help_option_names=["-h", "--help"]
-    )
-
-
-def glist_wrapper(args):
-    """Lists protected environments"""
-    glist(
-        args=args, prog_name=f"conda {GUARD_LIST_COMMAND_NAME}", standalone_mode=False
     )
 
 
@@ -307,9 +296,4 @@ def conda_pre_commands():
 def conda_subcommands():
     yield CondaSubcommand(
         name=GUARD_COMMAND_NAME, action=guard_wrapper, summary=guard_wrapper.__doc__
-    )
-    yield CondaSubcommand(
-        name=GUARD_LIST_COMMAND_NAME,
-        action=glist_wrapper,
-        summary=glist_wrapper.__doc__,
     )
