@@ -1,6 +1,6 @@
 [project]
-name = "conda-auth"
-version = "0.2.0"
+name = "conda-protect"
+version = "0.5.0"
 description = "Protects conda environments to avoid mistakenly modifying them"
 authors = ["Travis Hathaway <travis.j.hathaway@gmail.com>"]
 channels = ["conda-forge"]
