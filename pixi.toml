@@ -51,7 +51,7 @@ pre-commit = "*"
 rattler-build = "*"
 
 [feature.dev.pypi-dependencies]
-conda-auth = { path = ".", editable = true }
+conda-protect = { path = ".", editable = true }
 
 [environments]
 dev = ["dev"]
