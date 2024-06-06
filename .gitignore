@@ -133,3 +133,6 @@ dmypy.json
 
 # Local channel build stuff
 .channel
+# pixi environments
+.pixi
+

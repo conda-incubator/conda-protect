@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "conda-protect"
@@ -31,5 +31,8 @@ dependencies = [
 [project.entry-points.conda]
 conda-protect = "conda_protect.main"
 
-[tool.setuptools]
-packages = ["conda_protect"]
+[tool.setuptools.packages]
+find = {}
+
+[tool.hatch.version]
+source = "vcs"

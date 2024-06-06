@@ -1,13 +1,9 @@
-{% set name = "conda-schutz" %}
-{% set version = "0.3.0" %}
-
 package:
-  name: {{ name|lower }}
-  version: {{ version }}
+  name: conda-auth
+  version: {{ GIT_DESCRIBE_TAG }}.{{ GIT_BUILD_STR }}
 
 source:
-  url: https://github.com/travishathaway/{{ name }}/archive/refs/tags/{{ version}}.tar.gz
-  sha256: 7c7db2d973a5b448f6802908f147c2c486c1865a2f7fe818120d25986f55410c
+  git_url: ../
 
 build:
   noarch: python
@@ -18,6 +14,8 @@ requirements:
   host:
     - python >=3.8,<4.0
     - pip
+    - hatchling
+    - hatch-vcs
   run:
     - python >=3.8.1,<4.0.0
     - conda >=23.7.0
@@ -26,16 +24,16 @@ requirements:
 
 test:
   imports:
-    - schutz
+    - conda_protect
   commands:
     - pip check
   requires:
     - pip
 
 about:
-  home: https://github.com/travishathaway/conda-guard
-  summary: Guard conda environments to avoid mistakenly modifying them
-  license: GPL-3.0
+  home: https://github.com/conda-incubator/conda-protect
+  summary: Protect conda environments to avoid mistakenly modifying them
+  license: BSD-3-Clause
   license_file: LICENSE
 
 extra:
