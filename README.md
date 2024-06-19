@@ -18,7 +18,7 @@ and it will cause conda to exit early on the following commands if an environmen
 You can install this plugin by running the following command:
 
 ```
-conda install -c thath conda-protect
+conda install -c conda-forge conda-protect
 ```
 
 ## Usage
@@ -57,7 +57,7 @@ Conda protect also installs a `plist` subcommand that comes in handy when you've
 environments are protected:
 
 ```commandline
-$ conda plist
+$ conda protect --list
                         Conda Environments
 ┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
 ┃ Name      ┃ Prefix                                ┃ Status       ┃
@@ -73,7 +73,7 @@ $ conda plist
 You can also list just the protected environments with the `--protected` option:
 
 ```commandline
-$ conda plist --protected
+$ conda protect --list --protected
                         Conda Environments
 ┏━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
 ┃ Name      ┃ Prefix                                ┃ Status       ┃
